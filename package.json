@@ -10,12 +10,16 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.15.9",
     "@react-navigation/native": "^7.2.2",
     "@types/react": "~19.1.10",
     "@types/react-native": "^0.72.8",
+    "bcryptjs": "^3.0.3",
     "expo": "~54.0.33",
+    "expo-image-picker": "~17.0.10",
     "expo-status-bar": "~3.0.9",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.7.0",
     "react": "19.1.0",
     "react-native": "0.81.5",
@@ -23,5 +27,9 @@
     "react-native-screens": "~4.16.0",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10"
+  }
 }
