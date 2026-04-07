@@ -1,4 +1,4 @@
-import PostModel from "../model/PostSchema";
+import PostModel from "../model/PostSchema.js";
 import { Request, Response } from "express";
 
 

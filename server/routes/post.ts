@@ -1,4 +1,4 @@
-import { Getcode, PostCode } from '../controllers/Postcontroller';
+import { Getcode, PostCode } from '../controllers/Postcontroller.js';
 
 import express from 'express';
 const router = express.Router();

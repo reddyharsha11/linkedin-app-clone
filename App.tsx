@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
@@ -14,6 +15,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import PostCard, { PostcardProps } from './components/Postcard';
+import { ENDPOINTS } from './server/config/api';
 
 const LinkedInHeader = () => {
   return (
@@ -47,33 +49,64 @@ const LinkedInHeader = () => {
   );
 };
 
+// 1. Create a "Box" (State) to hold your posts from MongoDB
+const [posts, setPosts] = useState<any[]>([]);
+const [isLoading, setIsLoading] = useState(true);
+
+// 2. The actual Fetch Function
+const fetchFeed = async () => {
+  try {
+    setIsLoading(true);
+    // Logic: Use your specific IP address here
+    const response = await fetch('http://172.16.1.233:5000/posts');
+    const data = await response.json();
+
+    // Logic: Put the data from the server into our State
+    setPosts(data);
+  } catch (error) {
+    console.error("Connection Failed:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// 3. The "Trigger": Run fetchFeed exactly once when the screen loads
+useEffect(() => {
+  fetchFeed();
+}, []);
+
 
 const HomeScreen = () => (
-  
+
   <SafeAreaView edges={['top']} style={styles.screen}>
     <LinkedInHeader />
-    
-    <ScrollView 
-      showsVerticalScrollIndicator={false} 
+
+    <ScrollView
+      showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.feedContainer}
     >
-      {/* Post 1: Personal Update */}
-      <PostCard 
-        profileName="B Harshavardhan Reddy"
-        headline="Software Developer Intern @ NxtWave | BITS Pilani"
-        description="Just finished building the feed architecture for my LinkedIn clone! Loving how React Native handles reusable components. 🚀 #ReactNative #Coding"
-        postImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop"
-        time="Just now"
-      />
+      {/* The "Start a Post" Entry Bar */}
+      <View style={styles.postTriggerContainer}>
+        <Image
+          source={{ uri: 'https://api.dicebear.com/7.x/avataaars/png?seed=Harsha' }}
+          style={styles.userSmallAvatar}
+        />
+        <TouchableOpacity style={styles.fakeInputPill}>
+          <Text style={styles.fakeInputText}>Start a post</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Post 2: Tech News */}
-      <PostCard 
-        profileName="Tech Insights"
-        headline="Daily Tech Updates"
-        description="The future of mobile development is looking bright with the new architecture updates in React Native. What are your thoughts? 📱"
-        postImage="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000&auto=format&fit=crop"
-        time="2h"
-      />
+      {/* DYNAMIC LOGIC: Stamping out the posts from your database */}
+      {posts.map((item) => (
+        <PostCard
+          key={item._id} 
+          profileName={item.profileName}
+          headline={item.headline}
+          description={item.description}
+          postImage={item.postImage}
+          time={item.time}
+        />
+      ))}
     </ScrollView>
   </SafeAreaView>
 );
@@ -185,5 +218,62 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     fontWeight: '500',
+  },
+  postTriggerContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    // Android Shadow
+    elevation: 2,
+    // iOS Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+  },
+  userSmallAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#DDD',
+  },
+  fakeInputPill: {
+    flex: 1,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#666666',
+    marginLeft: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  fakeInputText: {
+    color: '#666666',
+    fontSize: 14,
+    fontWeight: '600',
+  },centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#F3F2EF',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#0A66C2',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  retryText: {
+    color: '#FFF',
+    fontWeight: 'bold',
   }
 });

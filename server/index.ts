@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import ConnectDB from './config/db';
-import router from './routes/post';
+import ConnectDB from './config/db.js';
+import router from './routes/post.js';
 
 
 const app = express();
