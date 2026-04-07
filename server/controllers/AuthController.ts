@@ -52,10 +52,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     res.status(500).json({ message: 'Server error during registration' });
   }
 };
-
-/**
- * LOGIC: Login an existing user
- */
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
@@ -67,17 +63,22 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 2. Check if the password matches the hashed password in the DB
+    // ADD THIS NEW CHECK: Ensure the user actually has a password in the database
+    if (!user.password) {
+      res.status(400).json({ message: 'Invalid credentials' });
+      return;
+    }
+
+    // 2. Now TypeScript knows user.password is 100% a string
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
 
-    // 3. Generate a token
+    // ... (rest of your login code stays exactly the same)
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
-    // 4. Send back the token and user data (except the password)
     res.status(200).json({
       token,
       user: {

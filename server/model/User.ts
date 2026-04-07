@@ -1,30 +1,29 @@
 import mongoose from 'mongoose';
+interface IUser {
+  name: string;
+  email: string;
+  password?: string;
+  headline?: string;
+  avatar?: string;
+}
 
-const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true, // Prevents duplicate accounts
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  headline: {
-    type: String,
-    default: 'LinkedIn Member', // Default fallback
-  },
+// Then update your schema definition:
+const UserSchema = new mongoose.Schema<IUser>({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  headline: { type: String, default: 'LinkedIn Member' },
   avatar: {
     type: String,
-    default: function() {
-      // Automatically generates a unique avatar based on their name
-      return `https://api.dicebear.com/7.x/avataaars/png?seed=${this.name}`;
+    // Use an arrow function so 'this' isn't used, and take the document as an argument
+    default: function(this: any) {
+      // Check if 'this' exists and has a name, otherwise use a generic fallback
+      const seedName = (this && this.name) ? this.name : 'User';
+      return `https://api.dicebear.com/7.x/avataaars/png?seed=${seedName}`;
     }
   }
 }, { timestamps: true });
 
-export default mongoose.model('User', UserSchema);
+const User = mongoose.model<IUser>('User', UserSchema);
+
+export default User;
