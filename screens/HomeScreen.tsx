@@ -1,31 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Modal,
-  Alert
-} from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// IMPORTANT: Notice the ../ to go up one folder to reach components
 import PostCard from '../components/Postcard';
 
-const BASE_URL = 'http://172.16.1.233:5000';
+const BASE_URL = 'http://192.168.1.26:5000'; // Make sure this is your current IP!
 const GET_URL = `${BASE_URL}/getallposts`;
 const POST_URL = `${BASE_URL}/uplodpost`;
 
-const LinkedInHeader = () => (
+// Header now accepts the user's avatar and the navigation function
+const LinkedInHeader = ({ userAvatar, onProfilePress }: any) => (
   <View style={styles.headerContainer}>
-    <TouchableOpacity activeOpacity={0.7}>
-      <Image source={{ uri: 'https://api.dicebear.com/7.x/avataaars/png?seed=Harsha' }} style={styles.profileImage} />
+    <TouchableOpacity activeOpacity={0.7} onPress={onProfilePress}>
+      <Image source={{ uri: userAvatar }} style={styles.profileImage} />
     </TouchableOpacity>
     <View style={styles.searchSection}>
       <Ionicons name="search" size={18} color="#666" style={styles.searchIcon} />
@@ -38,13 +28,26 @@ const LinkedInHeader = () => (
   </View>
 );
 
-export default function HomeScreen(): React.JSX.Element {
+export default function HomeScreen({ navigation }: any): React.JSX.Element {
+  const [currentUser, setCurrentUser] = useState<any>(null); // State for dynamic user data
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
   const [postContent, setPostContent] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Load user data and posts when screen opens
+  useEffect(() => {
+    const loadUserData = async () => {
+      const userStr = await AsyncStorage.getItem('userData');
+      if (userStr) {
+        setCurrentUser(JSON.parse(userStr));
+      }
+    };
+    loadUserData();
+    fetchFeed();
+  }, []);
 
   const fetchFeed = async () => {
     try {
@@ -53,10 +56,7 @@ export default function HomeScreen(): React.JSX.Element {
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.indexOf("application/json") !== -1) {
         const data = await response.json();
-        // Reverse so newest posts are at the top!
         setPosts(data.reverse());
-      } else {
-        console.log("SERVER RETURNED NON-JSON");
       }
     } catch (error) {
       console.error("Fetch Error:", error);
@@ -70,11 +70,14 @@ export default function HomeScreen(): React.JSX.Element {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.5,
+      quality: 0.2, // Reduced quality slightly for faster uploads
+      base64: true, // THIS FIXES THE CROSS-DEVICE IMAGE BUG!
     });
 
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+    if (!result.canceled && result.assets[0].base64) {
+      // Create the Base64 text string
+      const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      setSelectedImage(base64Image);
     }
   };
 
@@ -87,8 +90,9 @@ export default function HomeScreen(): React.JSX.Element {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          profileName: 'B Harshavardhan Reddy',
-          headline: 'Software Developer Intern @ NxtWave',
+          // USE DYNAMIC USER DATA INSTEAD OF HARDCODED STRINGS
+          profileName: currentUser?.name || 'LinkedIn Member',
+          headline: currentUser?.headline || 'Member',
           description: postContent,
           postImage: selectedImage || '', 
           time: 'Just now'
@@ -110,20 +114,21 @@ export default function HomeScreen(): React.JSX.Element {
     }
   };
 
-  useEffect(() => {
-    fetchFeed();
-  }, []);
+  const fallbackAvatar = 'https://api.dicebear.com/7.x/avataaars/png?seed=User';
 
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
-      <LinkedInHeader />
+      <LinkedInHeader 
+        userAvatar={currentUser?.avatar || fallbackAvatar} 
+        onProfilePress={() => navigation.navigate('Profile')} // NAVIGATE TO PROFILE SCREEN
+      />
 
       {isLoading ? (
         <View style={styles.centered}><ActivityIndicator size="large" color="#0A66C2" /></View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.feedContainer}>
           <View style={styles.postTriggerContainer}>
-            <Image source={{ uri: 'https://api.dicebear.com/7.x/avataaars/png?seed=Harsha' }} style={styles.userSmallAvatar} />
+            <Image source={{ uri: currentUser?.avatar || fallbackAvatar }} style={styles.userSmallAvatar} />
             <TouchableOpacity style={styles.fakeInputPill} onPress={() => setModalVisible(true)}>
               <Text style={styles.fakeInputText}>Start a post</Text>
             </TouchableOpacity>
@@ -162,21 +167,11 @@ export default function HomeScreen(): React.JSX.Element {
           </View>
           
           <ScrollView style={{flex: 1}}>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="What do you want to talk about?"
-              multiline
-              value={postContent}
-              onChangeText={setPostContent}
-              autoFocus
-            />
+            <TextInput style={styles.modalInput} placeholder="What do you want to talk about?" multiline value={postContent} onChangeText={setPostContent} autoFocus />
             {selectedImage && (
               <View style={{ padding: 15, position: 'relative' }}>
                 <Image source={{ uri: selectedImage }} style={{ width: '100%', height: 300, borderRadius: 10 }} />
-                <TouchableOpacity 
-                  style={{ position: 'absolute', top: 25, right: 25, backgroundColor: 'rgba(0,0,0,0.5)', padding: 5, borderRadius: 15 }}
-                  onPress={() => setSelectedImage(null)}
-                >
+                <TouchableOpacity style={{ position: 'absolute', top: 25, right: 25, backgroundColor: 'rgba(0,0,0,0.5)', padding: 5, borderRadius: 15 }} onPress={() => setSelectedImage(null)}>
                   <Ionicons name="close" size={20} color="#FFF" />
                 </TouchableOpacity>
               </View>

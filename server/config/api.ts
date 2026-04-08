@@ -1,5 +1,5 @@
 // 1. YOUR SPECIFIC IP (from ipconfig)
-const DEV_IP = '172.16.1.233'; 
+const DEV_IP = '172.16.2.136'; 
 
 // 2. THE FULL BASE URL
 // We use port 5000 because 

@@ -7,11 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
-
+// Imports
 import AuthScreen from './screens/AuthScreen';
 import HomeScreen from './screens/HomeScreen';
+import ProfileScreen from './screens/ProfileScreen'; // NEW
 
-// Placeholder screens for the other tabs
+// Placeholders
 const NetworkScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Network</Text></View>;
 const PostScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Post</Text></View>;
 const NotificationsScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Notifications</Text></View>;
@@ -23,7 +24,6 @@ export default function App(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState<string | null>(null);
 
-  // Check if user is already logged in when the app starts
   useEffect(() => {
     const checkLogin = async () => {
       try {
@@ -46,12 +46,10 @@ export default function App(): React.JSX.Element {
     );
   }
 
-  // If no token, show the Login/Register Screen
   if (userToken == null) {
     return <AuthScreen onLogin={(token) => setUserToken(token)} />;
   }
 
-  // If token exists, show the Main App
   return (
     <SafeAreaProvider>
       <NavigationContainer>
@@ -63,11 +61,21 @@ export default function App(): React.JSX.Element {
             tabBarStyle: { height: 65, paddingBottom: 10 },
           }}
         >
+          {/* Home Screen (No longer handles logout directly) */}
           <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="home" size={24} color={color} /> }} />
           <Tab.Screen name="Network" component={NetworkScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="people" size={24} color={color} /> }} />
           <Tab.Screen name="Post" component={PostScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="add-circle" size={24} color={color} /> }} />
           <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="notifications" size={24} color={color} /> }} />
           <Tab.Screen name="Jobs" component={JobsScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="briefcase" size={24} color={color} /> }} />
+          
+          {/* NEW: Profile Screen (Hidden from bottom bar) */}
+          <Tab.Screen 
+            name="Profile" 
+            options={{ tabBarButton: () => null, tabBarStyle: { display: 'none' } }}
+          >
+            {(props) => <ProfileScreen {...props} onLogout={() => setUserToken(null)} />}
+          </Tab.Screen>
+
         </Tab.Navigator>
         <StatusBar style="dark" />
       </NavigationContainer>
