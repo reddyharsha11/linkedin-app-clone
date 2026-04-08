@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AUTH_URL = 'http://172.16.1.233:5000/auth';
+const AUTH_URL = 'http://192.168.1.26:5000/auth';
 
 interface AuthScreenProps {
   onLogin: (token: string) => void;
