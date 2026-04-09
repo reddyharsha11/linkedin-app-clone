@@ -3,12 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../model/User.js';
 
-// SECRET KEY for JWT (In a real app, put this in a .env file)
+
 const JWT_SECRET = 'your_super_secret_key_123'; 
 
-/**
- * LOGIC: Register a new user
- */
+
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, headline } = req.body;

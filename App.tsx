@@ -11,10 +11,10 @@ import { StatusBar } from 'expo-status-bar';
 import AuthScreen from './screens/AuthScreen';
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen'; // NEW
+import PostScreen from './screens/PostScreen';
 
 // Placeholders
 const NetworkScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Network</Text></View>;
-const PostScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Post</Text></View>;
 const NotificationsScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Notifications</Text></View>;
 const JobsScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Jobs</Text></View>;
 
@@ -68,10 +68,13 @@ export default function App(): React.JSX.Element {
           <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="notifications" size={24} color={color} /> }} />
           <Tab.Screen name="Jobs" component={JobsScreen} options={{ tabBarIcon: ({color}) => <Ionicons name="briefcase" size={24} color={color} /> }} />
           
-          {/* NEW: Profile Screen (Hidden from bottom bar) */}
           <Tab.Screen 
             name="Profile" 
-            options={{ tabBarButton: () => null, tabBarStyle: { display: 'none' } }}
+            options={{ 
+              tabBarButton: () => null, 
+              tabBarItemStyle: { display: 'none' }, 
+              tabBarStyle: { display: 'none' }      
+            }}
           >
             {(props) => <ProfileScreen {...props} onLogout={() => setUserToken(null)} />}
           </Tab.Screen>
