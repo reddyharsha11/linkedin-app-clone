@@ -1,0 +1,15 @@
+.env
+
+# Dependencies
+/node_modules
+
+# Build artifacts
+/dist
+/build
+
+# Log files
+*.log
+
+# IDE and OS files
+.vscode/
+.DS_Store

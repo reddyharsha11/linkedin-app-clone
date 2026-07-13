@@ -15,7 +15,7 @@ const EventsPage = () =>{
             const data = await response.json();
             setEventData(data);
         }
-        console.log(eventData);
+        // console.log(eventData);
 
     };
 
