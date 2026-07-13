@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    /* Essential for Node 22 + ESM */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    
+    /* File Layout */
+    "outDir": "./dist",
+    "rootDir": "./",
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    
+    /* Advanced Output */
+    "sourceMap": true,
+    "declaration": true
+  },
+  /* This part is CRITICAL for your server to run without errors */
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifiers": true,
+    "transpileOnly": true
+  }
+}

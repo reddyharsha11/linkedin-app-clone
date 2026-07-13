@@ -1,11 +1,15 @@
 .env
+.env*.local
 
 # Dependencies
+node_modules/
 /node_modules
 
 # Build artifacts
 /dist
+dist/
 /build
+web-build/
 
 # Log files
 *.log
@@ -13,3 +17,34 @@
 # IDE and OS files
 .vscode/
 .DS_Store
+
+# Expo
+.expo/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+*.pem
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
